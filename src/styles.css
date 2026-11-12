@@ -1,0 +1,62 @@
+/* Astryx owns component styling and tokens. This file only carries the shared
+   ePocketShop palette used by epocketshop_admin ("Lemon granite morning":
+   lemon yellow, gunmetal grey and cool blue-grey) so the storefront matches it. */
+
+:root,
+[data-astryx-theme] {
+  --lemon: #ffd21f;
+  --gunmetal: #1f2933;
+  --granite: #eef0f2;
+
+  --color-accent: light-dark(#111418, #eef0f2);
+  --color-accent-muted: light-dark(#11141826, #eef0f240);
+  --color-on-accent: light-dark(#ffffff, #111418);
+  --color-text-accent: light-dark(#34506b, #eef0f2);
+  --color-text-info: light-dark(#34506b, #9bb7d1);
+  --color-text-primary: light-dark(#1f2933, #eef0f2);
+  --color-text-secondary: light-dark(#566573, #a9b4be);
+  --color-background-body: light-dark(#eef0f2, #1b2127);
+  --color-background-surface: light-dark(#ffffff, #232b33);
+  --color-background-card: light-dark(#ffffff, #2a333c);
+  --color-background-muted: light-dark(#e3e7ea, #2a333c);
+  --color-background-popover: light-dark(#ffffff, #2a333c);
+  --color-border: light-dark(#d7dce0, #3b4650);
+  --color-border-emphasized: light-dark(#b4bcc4, #5a6672);
+  --color-icon-accent: light-dark(#34506b, #ffd21f);
+  --color-info: light-dark(#34506b, #9bb7d1);
+}
+
+/* The base theme tints links and secondary/ghost buttons with its blue accent. */
+.astryx-link,
+.astryx-button[data-variant='secondary'],
+.astryx-button[data-variant='ghost'] {
+  --color-text-primary: light-dark(#34506b, #ffd21f);
+  --color-text-accent: light-dark(#34506b, #ffd21f);
+}
+
+.astryx-button[data-variant='secondary'],
+.astryx-button[data-variant='ghost'] {
+  color: light-dark(#34506b, #ffd21f);
+}
+
+.astryx-button[data-variant='secondary'] {
+  border-color: light-dark(#34506b, #ffd21f);
+}
+
+.astryx-badge[data-variant='neutral'],
+.astryx-badge[data-variant='info'],
+.astryx-badge[data-variant='warning'] {
+  background-color: light-dark(#111418, #eef0f2);
+  color: light-dark(#ffffff, #111418);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background-body);
+}

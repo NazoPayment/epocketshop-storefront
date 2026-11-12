@@ -1,0 +1,14 @@
+/**
+ * Astryx theme registry. Same theme as epocketshop_admin (Butter).
+ * @astryx-theme-record {"themes":{"butter":"@astryxdesign/theme-butter"},"defaultThemeSlug":"butter"}
+ */
+
+import {butterTheme as _astryxTheme0} from "@astryxdesign/theme-butter/built";
+import "@astryxdesign/theme-butter/theme.css";
+import "@astryxdesign/theme-butter/fonts.css";
+
+export const themes = {
+  "butter": _astryxTheme0,
+};
+
+export const defaultThemeSlug = "butter";
