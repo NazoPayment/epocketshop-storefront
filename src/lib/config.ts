@@ -16,7 +16,7 @@ export const config = {
   storeBaseUrl: env.VITE_STORE_BASE_URL ?? 'https://epocketshop.store',
   // Where a would-be seller goes to create a store, and where they can read more.
   // Change these two (or set VITE_ADMIN_URL / VITE_INFO_URL) when the sites move.
-  adminUrl: env.VITE_ADMIN_URL ?? 'https://epocketshopadmin.vercel.app/login',
+  adminUrl: env.VITE_ADMIN_URL ?? 'https://seller.epocketshop.store/login',
   infoUrl: env.VITE_INFO_URL ?? 'https://epocketshop-web.vercel.app/',
   defaultWhatsAppNumber: env.VITE_DEFAULT_WHATSAPP_NUMBER ?? '+27739379358',
 } as const;
