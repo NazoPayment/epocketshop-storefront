@@ -12,6 +12,9 @@ import {StackItem} from '@astryxdesign/core/Stack';
 import {Text} from '@astryxdesign/core/Text';
 import {VStack} from '@astryxdesign/core/VStack';
 import {config} from '@/lib/config';
+import {Badge} from '@astryxdesign/core/Badge';
+import {formatTodayHoursSummary} from '@/lib/hours';
+import {useShopStatus} from '@/hooks/useShopStatus';
 import type {BusinessDetails} from '@/lib/types';
 import {InstallButton} from './InstallButton';
 import {ProductImage} from './ProductImage';
@@ -36,6 +39,8 @@ export function StoreHero({
 }) {
   const displayName = businessDetails.name || storeName;
   const logo = businessDetails.business_logo || businessDetails.logo;
+  const shopStatus = useShopStatus(businessDetails);
+  const todayHours = formatTodayHoursSummary(shopStatus);
 
   return (
     <Card padding={0}>
@@ -49,7 +54,18 @@ export function StoreHero({
                 <HStack gap={2} vAlign="center" wrap="wrap">
                   <Heading level={1}>{displayName}</Heading>
                   <VerifiedBadges tier={businessDetails.verified} />
+                  {shopStatus.enabled && (
+                    <Badge
+                      variant={shopStatus.isOpen ? 'success' : 'warning'}
+                      label={shopStatus.isOpen ? 'Open now' : 'Closed'}
+                    />
+                  )}
                 </HStack>
+                {shopStatus.enabled && todayHours && (
+                  <Text type="supporting" size="sm">
+                    {todayHours}
+                  </Text>
+                )}
                 {businessDetails.description && (
                   <Text type="supporting" maxLines={3}>
                     {businessDetails.description}

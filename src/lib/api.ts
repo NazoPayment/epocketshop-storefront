@@ -113,6 +113,16 @@ function randomHex(length: number): string {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+export class ShopClosedError extends Error {
+  nextOpenLabel: string | null;
+
+  constructor(message: string, nextOpenLabel: string | null = null) {
+    super(message);
+    this.name = 'ShopClosedError';
+    this.nextOpenLabel = nextOpenLabel;
+  }
+}
+
 export async function submitOrder(payload: OrderPayload): Promise<void> {
   // W3C trace context so the order shows up in the backend's traces.
   const traceparent = `00-${randomHex(32)}-${randomHex(16)}-01`;
@@ -120,7 +130,23 @@ export async function submitOrder(payload: OrderPayload): Promise<void> {
   const response = await postJson(`${config.orderApiUrl}/order`, payload, {traceparent});
 
   if (!response.ok) {
-    throw new Error(`Failed to submit order: ${response.status}`);
+    let errorData: {shop_closed?: boolean; message?: string; next_open_label?: string | null} | null = null;
+    try {
+      errorData = (await response.json()) as {
+        shop_closed?: boolean;
+        message?: string;
+        next_open_label?: string | null;
+      };
+    } catch {
+      errorData = null;
+    }
+    if (response.status === 403 && errorData?.shop_closed) {
+      throw new ShopClosedError(
+        errorData.message || 'This store is currently closed and not accepting orders right now.',
+        errorData.next_open_label ?? null,
+      );
+    }
+    throw new Error(errorData?.message || `Failed to submit order: ${response.status}`);
   }
 }
 

@@ -21,11 +21,13 @@ export function ProductCard({
   product,
   currency,
   earnsReward = false,
+  isStoreOpen = true,
 }: {
   product: Product;
   currency: string;
   /** The product's category has a loyalty stamp card. */
   earnsReward?: boolean;
+  isStoreOpen?: boolean;
 }) {
   const {addItem} = useCart();
   const toast = useToast();
@@ -36,6 +38,7 @@ export function ProductCard({
   const price = product.price / 100 + (defaultOption?.price ?? 0);
 
   const quickAdd = () => {
+    if (!isStoreOpen) return;
     addItem(product, 1, defaultOption, []);
     toast({body: `${product.name} added to cart`, uniqueID: `added-${product.id}`});
   };
@@ -83,10 +86,11 @@ export function ProductCard({
             />
           ) : (
             <Button
-              label="Add to cart"
+              label={isStoreOpen ? 'Add to cart' : 'Store closed'}
               variant="primary"
               width="100%"
               icon={<Icon icon={ShoppingCart} />}
+              isDisabled={!isStoreOpen}
               onClick={quickAdd}
             />
           )}
@@ -99,6 +103,7 @@ export function ProductCard({
           currency={currency}
           isOpen={isOpen}
           onOpenChange={setIsOpen}
+          isStoreOpen={isStoreOpen}
         />
       )}
     </Card>

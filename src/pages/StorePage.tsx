@@ -14,6 +14,8 @@ import {TextInput} from '@astryxdesign/core/TextInput';
 import {VStack} from '@astryxdesign/core/VStack';
 import {useCart} from '@/contexts/CartContext';
 import {useLoyaltyRules} from '@/hooks/useLoyaltyRules';
+import {ShopClosedBanner} from '@/components/ShopClosedBanner';
+import {useShopStatus} from '@/hooks/useShopStatus';
 import {useStoreRoute} from '@/hooks/useStoreRoute';
 import {currencySymbol, formatPrice, storePath} from '@/lib/format';
 import type {Product} from '@/lib/types';
@@ -57,6 +59,7 @@ export default function StorePage() {
   const [, navigate] = useLocation();
   const {storeData, products, businessDetails, loading, error, storeName} = useStoreRoute();
   const {totalItems, totalPrice} = useCart();
+  const shopStatus = useShopStatus(businessDetails);
 
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(ALL);
@@ -135,6 +138,8 @@ export default function StorePage() {
           onShare={() => setIsShareOpen(true)}
         />
 
+        <ShopClosedBanner status={shopStatus} />
+
         <RewardsCard rules={loyaltyRules} />
 
         <VStack gap={3}>
@@ -192,6 +197,7 @@ export default function StorePage() {
                 product={product}
                 currency={currency}
                 earnsReward={rewardCategories.has(product.category ?? '')}
+                isStoreOpen={shopStatus.isOpen}
               />
             ))}
           </Grid>
@@ -220,6 +226,7 @@ export default function StorePage() {
           currency={currency}
           isOpen
           onOpenChange={(open) => !open && setPicked(null)}
+          isStoreOpen={shopStatus.isOpen}
         />
       )}
 

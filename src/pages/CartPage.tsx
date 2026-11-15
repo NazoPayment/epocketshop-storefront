@@ -13,6 +13,8 @@ import {StackItem} from '@astryxdesign/core/Stack';
 import {Text} from '@astryxdesign/core/Text';
 import {Thumbnail} from '@astryxdesign/core/Thumbnail';
 import {VStack} from '@astryxdesign/core/VStack';
+import {ShopClosedBanner} from '@/components/ShopClosedBanner';
+import {useShopStatus} from '@/hooks/useShopStatus';
 import {useCart} from '@/contexts/CartContext';
 import {useStoreRoute} from '@/hooks/useStoreRoute';
 import {currencySymbol, formatPrice, storePath} from '@/lib/format';
@@ -25,6 +27,7 @@ export default function CartPage() {
   const [, navigate] = useLocation();
   const {items, removeItem, updateQuantity, totalPrice, totalItems} = useCart();
   const {businessDetails, storeName} = useStoreRoute();
+  const shopStatus = useShopStatus(businessDetails);
   const currency = currencySymbol(businessDetails?.currency);
 
   const goToStore = () => navigate(storePath(storeName));
@@ -42,6 +45,7 @@ export default function CartPage() {
       />
 
       <PageContainer width="medium" gap={5}>
+        <ShopClosedBanner status={shopStatus} />
         {items.length === 0 ? (
           <EmptyState
             icon={<Icon icon={ShoppingBag} size="lg" />}
@@ -122,11 +126,15 @@ export default function CartPage() {
                   <OrderSummary items={items} totalPrice={totalPrice} currency={currency} />
                   <Divider />
                   <Button
-                    label="Checkout via WhatsApp"
+                    label={shopStatus.isOpen ? 'Checkout via WhatsApp' : 'Store currently closed'}
                     variant="primary"
                     size="lg"
                     width="100%"
-                    onClick={() => navigate(storePath(storeName, 'checkout'))}
+                    isDisabled={!shopStatus.isOpen}
+                    onClick={() => {
+                      if (!shopStatus.isOpen) return;
+                      navigate(storePath(storeName, 'checkout'));
+                    }}
                   />
                   <HStack gap={2} vAlign="center">
                     <Icon icon={ShieldCheck} size="sm" color="secondary" />

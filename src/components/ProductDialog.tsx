@@ -25,11 +25,13 @@ export function ProductDialog({
   currency,
   isOpen,
   onOpenChange,
+  isStoreOpen = true,
 }: {
   product: Product;
   currency: string;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
+  isStoreOpen?: boolean;
 }) {
   const {addItem} = useCart();
   const toast = useToast();
@@ -114,16 +116,30 @@ export function ProductDialog({
           </CheckboxList>
         )}
 
+        {!isStoreOpen && (
+          <Text color="accent">
+            This store is currently closed and not accepting orders right now.
+          </Text>
+        )}
+
         <HStack gap={3} vAlign="center">
           <QuantityControl value={quantity} onChange={setQuantity} itemName={product.name} />
           <StackItem size="fill">
             <Button
-              label={`Add to cart · ${currency} ${(unitPrice * quantity).toFixed(2)}`}
+              label={
+                isStoreOpen
+                  ? `Add to cart · ${currency} ${(unitPrice * quantity).toFixed(2)}`
+                  : 'Store closed'
+              }
               variant="primary"
               size="lg"
               width="100%"
               icon={<Icon icon={ShoppingCart} />}
-              onClick={handleAdd}
+              isDisabled={!isStoreOpen}
+              onClick={() => {
+                if (!isStoreOpen) return;
+                handleAdd();
+              }}
             />
           </StackItem>
         </HStack>

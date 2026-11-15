@@ -13,7 +13,8 @@ import {TextInput} from '@astryxdesign/core/TextInput';
 import {VStack} from '@astryxdesign/core/VStack';
 import {useCart} from '@/contexts/CartContext';
 import {useStoreRoute} from '@/hooks/useStoreRoute';
-import {fetchCustomer, submitOrder, updateCustomer} from '@/lib/api';
+import {useShopStatus} from '@/hooks/useShopStatus';
+import {fetchCustomer, ShopClosedError, submitOrder, updateCustomer} from '@/lib/api';
 import {currencySymbol, storePath} from '@/lib/format';
 import {buildOrderPayload, storeUrl} from '@/lib/order';
 import {generateWhatsAppMessage, generateWhatsAppUrl} from '@/lib/whatsapp';
@@ -21,6 +22,7 @@ import type {CheckoutForm} from '@/lib/types';
 import {AppBar} from '@/components/AppBar';
 import {PageContainer, TwoColumn} from '@/components/layout';
 import {OrderSummary} from '@/components/OrderSummary';
+import {ShopClosedBanner} from '@/components/ShopClosedBanner';
 
 const MIN_PHONE_LENGTH = 9;
 const LOOKUP_DEBOUNCE_MS = 800;
@@ -31,6 +33,7 @@ export default function CheckoutPage() {
   const [, navigate] = useLocation();
   const {items, totalPrice} = useCart();
   const {businessDetails, storeName} = useStoreRoute();
+  const shopStatus = useShopStatus(businessDetails);
   const currency = currencySymbol(businessDetails?.currency);
 
   const [form, setForm] = useState<CheckoutForm>({phone: '', firstName: '', surname: '', note: ''});
@@ -38,6 +41,7 @@ export default function CheckoutPage() {
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [customerFound, setCustomerFound] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [closedError, setClosedError] = useState<string | null>(null);
 
   const lookupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastLookedUp = useRef('');
@@ -99,6 +103,10 @@ export default function CheckoutPage() {
   };
 
   const handleCheckout = async () => {
+    if (!shopStatus.isOpen) {
+      setClosedError(shopStatus.closedMessage);
+      return;
+    }
     if (!validate()) return;
     if (!businessDetails) {
       setErrors({phone: 'Store data not loaded. Please try again.'});
@@ -119,6 +127,11 @@ export default function CheckoutPage() {
       try {
         await submitOrder(payload);
       } catch (apiError) {
+        if (apiError instanceof ShopClosedError) {
+          setClosedError(apiError.message);
+          setIsSubmitting(false);
+          return;
+        }
         console.warn('Order API submission failed, continuing to WhatsApp:', apiError);
       }
 
@@ -155,6 +168,7 @@ export default function CheckoutPage() {
       <AppBar title="Checkout" onBack={() => navigate(storePath(storeName, 'cart'))} />
 
       <PageContainer width="medium" gap={5}>
+        <ShopClosedBanner status={shopStatus} overrideMessage={closedError} />
         <TwoColumn
           main={
             <Card padding={4}>
@@ -214,12 +228,17 @@ export default function CheckoutPage() {
                 <OrderSummary items={items} totalPrice={totalPrice} currency={currency} />
                 <Divider />
                 <Button
-                  label="Place order on WhatsApp"
+                  label={
+                    shopStatus.isOpen && !closedError
+                      ? 'Place order on WhatsApp'
+                      : 'Store currently closed'
+                  }
                   variant="primary"
                   size="lg"
                   width="100%"
                   icon={<Icon icon={MessageCircle} />}
                   isLoading={isSubmitting}
+                  isDisabled={!shopStatus.isOpen || Boolean(closedError)}
                   onClick={() => void handleCheckout()}
                 />
                 <HStack gap={2} vAlign="center">

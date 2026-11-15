@@ -41,6 +41,31 @@ export interface SocialMedia {
   youtube?: string;
 }
 
+export type DayKey = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+
+export interface DayHours {
+  closed: boolean;
+  open: string;
+  close: string;
+}
+
+export interface OperatingHours {
+  enabled: boolean;
+  days: Record<DayKey, DayHours>;
+}
+
+export interface ShopStatus {
+  enabled: boolean;
+  is_open: boolean;
+  timezone: string;
+  current_day: DayKey | string;
+  current_local_time?: string;
+  today_hours?: DayHours | null;
+  next_open_at?: string | null;
+  next_open_label?: string | null;
+  closed_message?: string | null;
+}
+
 export interface BusinessDetails {
   name?: string;
   business_name?: string;
@@ -63,6 +88,9 @@ export interface BusinessDetails {
   youtube?: string;
   verified?: VerifiedTier;
   social_media?: SocialMedia;
+  operating_hours?: OperatingHours | null;
+  timezone?: string;
+  shop_status?: ShopStatus | null;
 }
 
 export interface StoreData {
